@@ -1,0 +1,42 @@
+<body>
+<div class="container">
+    <div class="row no-gutter">
+
+      {% for item in data %}
+      <div class="col-sm-3 no-padding">
+        <div class="demo-content">
+          {% if item.media == 'jpg' %}
+
+
+                <a href = '{{ url_media }}?mediaid={{item.id}}' class = 'image'>
+                  <img src = '{{ thumbs }}{{ item.thumb_small }}' class = 'media'>
+                </a>
+
+          {% elseif item.media == 'mp4' %}
+            <video width="640" height="480" controls>
+              <source src="{{ originelen }}{{ item.original }}" type="video/mp4">
+            Your browser does not support the video tag.
+            </video>
+          {% else %}
+            {{ item.media }} is not supported
+          {% endif %}
+
+          {# Adding the hover buttons #}
+          <div class="hover-button">
+              <a href = '{{ url_toggle_favorite }}?mediaid={{ item.id }}' class = 'ToggleButton' class="linky">
+                {% if item.favorite == 't' %}
+                  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                {% else %}
+                  <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+                {% endif %}
+              </a>
+          </div>
+          <a href = '{{ url_toggle_front }}?mediaid={{ item.id }}' class = 'toggleFront'>frnt</a>
+        </div>
+
+      </div>
+      {% endfor %}
+
+    </div>
+<div id='modal'></div>
+</body>

@@ -1,0 +1,17 @@
+<body>
+<div class="container">
+    <div class="row">
+      {% for item in data %}
+        <div class="col-sm-3">
+          <div class="album-button">
+            <p>
+              <img src = '{{ thumbs }}{{ item.thumb_small }}'><br>
+              <h1><a href = '{{ url_album }}?album={{ item.slug }}&favorite=1'>{{ item.name }}</a></h1>
+              <h2>{{ item.startdate }} - {{ item.enddate }}</h2>
+              <a href = '{{ url_album }}?album={{ item.slug }}&favorite=0'>All</a>
+            </p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+</div>
