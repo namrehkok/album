@@ -4,8 +4,22 @@ from PIL import Image, ExifTags
 import exifread
 import datetime
 import time
+import sys
 
-from config import originals, thumbs
+import json
+config = {'vm': {'originals': '/var/www/html/album/originelen',
+                      'thumbs': '/var/www/html/album/thumbs'},
+          'werk': {'originals': 'C:/xampp/htdocs/album/originelen',
+                   'thumbs': 'C:/xampp/htdocs/album/thumbs'}}
+print sys.argv[1:]
+try:
+    originals = config[sys.argv[1:][0]]['originals']
+    thumbs = config[sys.argv[1:][0]]['thumbs']
+except:
+    print 'exit ', sys.argv[1:]
+    print config
+    sys.exit()
+    
 
 
 #Define our connection string
