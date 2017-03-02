@@ -5,6 +5,9 @@ import exifread
 import datetime
 import time
 
+from config import originals, thumbs
+
+
 #Define our connection string
 conn_string = "host='localhost' dbname='album' user='album' password='album'"
 
@@ -18,8 +21,7 @@ conn = psycopg2.connect(conn_string)
 cursor = conn.cursor()
 print "Connected!\n"
 
-originals = 'C:/xampp/htdocs/album/originelen'
-thumbs = 'C:/xampp/htdocs/album/thumbs'
+
 
 #########
 # Video #
@@ -95,11 +97,14 @@ def generate_thumb(original, target, size):
         e = image._getexif()       # returns None if no EXIF data
         if e is not None:
             exif=dict(e.items())
-            orientation = exif[orientation] 
+            try:
+                orientation = exif[orientation] 
+                if orientation == 3:   image = image.transpose(Image.ROTATE_180)
+                elif orientation == 6: image = image.transpose(Image.ROTATE_270)
+                elif orientation == 8: image = image.transpose(Image.ROTATE_90)
 
-            if orientation == 3:   image = image.transpose(Image.ROTATE_180)
-            elif orientation == 6: image = image.transpose(Image.ROTATE_270)
-            elif orientation == 8: image = image.transpose(Image.ROTATE_90)
+            except:
+                print 'Cannot get orientation for %s' % original
 
     image.thumbnail(size, Image.ANTIALIAS)
     image.save(target)
@@ -126,7 +131,7 @@ def get_date_created(media):
             date_created = datetime.datetime.now()
         ## Done reading EXIF
     else:
-        date_created = datetime.datetime.now()
+        date_created = ''
         
     if media.lower().endswith('.mp4'):    
         date_created = created_date_video(media)
@@ -146,7 +151,7 @@ for subdir, dirs, files in os.walk(originals):
             cursor.execute(sql)
             records = cursor.fetchall()
             if len(records) == 0:
-                slug = slugify(current_subdir)
+                slug = slugify(unicode(current_subdir))
                 print slug
                 print "going to add %s as %s" % (current_subdir, slug)
                 sql = "insert into albums (name, subdir, slug) values ('%s', '%s', '%s');" % (slug, current_subdir, slug)
@@ -173,8 +178,11 @@ for subdir, dirs, files in os.walk(originals):
                 start = time.time()
 
                 date_created = get_date_created(f)
-                sql = "insert into media (album_id, media, original, createddate) values (%s, '%s', '%s', '%s')" % (current_subdir_id, filename.lower()[-3:], filename, date_created)
-            
+                # In case we do not find a valid date from EXIF - return null in database. Deal with it later in SQL.
+                if date_created == '':
+                    sql = "insert into media (album_id, media, original) values (%s, '%s', '%s')" % (current_subdir_id, filename.lower()[-3:], filename)
+                else:
+                    sql = "insert into media (album_id, media, original, createddate) values (%s, '%s', '%s', '%s')" % (current_subdir_id, filename.lower()[-3:], filename, date_created)
                 cursor.execute(sql)
                 conn.commit()
                 sql = "select id from media where original = '%s';" % (filename)
