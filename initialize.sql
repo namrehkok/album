@@ -52,19 +52,38 @@ commit
 delete from albums cascade;
 delete from media cascade;
 
-insert into albums (name, slug) values ('test', 'slugtest');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename1');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename2');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename3');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename4');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename5');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename65');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename7');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename8');
-insert into media (album_id, filename) values ((select min(id) as id from albums) , 'filename9');
 
+update media set isfront = false
 
+update media set isfront = false where id in
+(
+	select id from
+	(
+	select b.id, row_number() over (partition by a.id order by 1) rn from 
+	albums a left join media b on a.id = b.album_id and b.isfront = true and media = 'jpg'
+	) t
+	where rn > 1
+)
+;
 
-insert into albums (name, subdir, slug) values ('fillipijnen', '/Fillipijnen', 'fillipijnen');
+update media set isfront = true where id in 
+( select id from
+(
+select b.id, row_number() over (partition by a.id order by 1) as rn from
+(select a.id from 
+albums a left join media b on a.id = b.album_id and b.isfront = true and media = 'jpg') a
+join media b on a.id = b.album_id
+) t
+where rn = 1
+)
+;
 
-SELECT a.name, a.slug, min(b.createddate) as createddate, max(b.createddate) as createddate FROM albums a join media b on a.id = b.album_id group by 1 ,2 order by 3 desc
+SELECT a.name, a.slug, min(cast(b.createddate as date)) as startdate, max(cast(b.createddate as date)) as enddate,
+max(case when b.isfront = true then b.thumb_small else null end) as thumb_small
+FROM albums a join media b on a.id = b.album_id group by 1 ,2 order by 3 desc
+
+update media set isfront = false where id in
+(select id from media a join
+(select album_id from media where id = 600) b on a.album_id = b.album_id);
+
+update media set isfront = true where id = 600;

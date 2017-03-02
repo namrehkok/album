@@ -139,7 +139,9 @@ for subdir, dirs, files in os.walk(originals):
         if file.lower().endswith('.mp4') or file.lower().endswith('.jpg'):
             start_time = time.time()
             # Check if we need to add the directory as a new album
-            current_subdir = subdir[len(originals):len(subdir)].replace("\\", "/")
+            current_subdir = subdir[len(originals):len(subdir)].replace("\\", "/").replace("'", "''")
+            if current_subdir == '':
+                current_subdir = '/'
             sql = "select id from albums where subdir = '%s';" % current_subdir
             cursor.execute(sql)
             records = cursor.fetchall()
@@ -160,7 +162,7 @@ for subdir, dirs, files in os.walk(originals):
 
             # Check if we need to add the media
             f = os.path.join(subdir, file)                        
-            filename = f[len(originals):len(f)].replace("\\", "/")
+            filename = f[len(originals):len(f)].replace("\\", "/").replace("'", "''")
             sql = "select * from media where original = '%s';" % (filename)
             cursor.execute(sql)
             records = cursor.fetchall()
