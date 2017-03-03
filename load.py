@@ -158,7 +158,6 @@ for subdir, dirs, files in os.walk(originals):
     for file in files:
         # if file is a jpg, mp4 and not some thing created by the mac (eg. starting with .) then process the file
         if file.lower().endswith('.mp4') or file.lower().endswith('.jpg') and not file.startswith('.'):
-            print 'Adding file %s' % file
             start_time = time.time()
             # Check if we need to add the directory as a new album
             current_subdir = subdir[len(originals):len(subdir)].replace("\\", "/").replace("'", "''")
@@ -192,6 +191,7 @@ for subdir, dirs, files in os.walk(originals):
             
             if len(records) == 0:
                 # We need to add media
+                print 'Adding file %s' % file
                 start = time.time()
 
                 date_created = get_date_created(f)
