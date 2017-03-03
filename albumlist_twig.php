@@ -13,7 +13,7 @@ $dbconn = pg_connect("host=localhost dbname=album user=album password=album")
 
 $query = "SELECT a.name, a.slug, min(cast(b.createddate as date)) as startdate, max(cast(b.createddate as date)) as enddate,
 max(case when b.isfront = true then b.thumb_small else null end) as thumb_small
-FROM albums a join media b on a.id = b.album_id group by 1 ,2 order by coalesce(min(cast(b.createddate as date)), to_date('18000101', 'yyyymmdd')) desc";
+FROM albums a join media b on a.id = b.album_id group by 1 ,2 order by coalesce(max(cast(b.createddate as date)), to_date('18000101', 'yyyymmdd')) desc";
 $result = pg_query($query) or die('Query failed: ' . pg_last_error());
 
 $data = pg_fetch_all($result);
