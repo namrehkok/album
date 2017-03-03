@@ -6,7 +6,9 @@
           <a href = '{{ originelen }}{{ item.original }}'><img src = '{{ thumbs }}{{ item.thumb_large }}'></a>
       </div>
       <div class="col-sm-2">
-        details
+        <h1>details</h1>
+        <h2>Date taken</h2>
+        {{ item.createddate }}
       </div>
       {% endfor %}
     </div>

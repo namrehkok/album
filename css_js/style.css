@@ -53,6 +53,15 @@
      font-size: 20px;
 	}
 
+  .DatetimeTakenAlbum {
+    font-size: 12px;
+    position: absolute;
+    top: 0px;
+    left: 20px;
+    display: none;
+
+  }
+  .demo-content:hover .DatetimeTakenAlbum {display:block}
   .demo-content:hover .toggleFront {display:block;}
 
 

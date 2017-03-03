@@ -5,6 +5,10 @@
       {% for item in data %}
       <div class="col-sm-3 no-padding">
         <div class="demo-content">
+          {# adding the date #}
+          <div class="DatetimeTakenAlbum">
+            {{ item.createddate }}
+          </div>
           {% if item.media == 'jpg' %}
 
 
@@ -13,11 +17,18 @@
                 </a>
 
           {% elseif item.media == 'mp4' %}
-            <video width="640" height="480" controls>
+            <video width="100%" controls>
               <source src="{{ originelen }}{{ item.original }}" type="video/mp4">
             Your browser does not support the video tag.
             </video>
+
+          {% elseif item.media == 'mov' %}
+            <video width="100%" controls>
+              <source src="{{ originelen }}{{ item.original }}" type="video/mov">
+            Your browser does not support the video tag.
+            </video>
           {% else %}
+
             {{ item.media }} is not supported
           {% endif %}
 
