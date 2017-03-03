@@ -11,16 +11,16 @@ drop table media cascade;
 
 CREATE TABLE albums (
   id serial primary key ,
-  subdir varchar(50) unique,
-  name varchar(50),
-  slug varchar(50)
+  subdir varchar(256) unique,
+  name varchar(256),
+  slug varchar(256)
 );
 
 create table media (
   id serial primary key,
   media varchar(3), --JPG / MP4
   album_id integer REFERENCES albums(id) ON DELETE CASCADE,
-original varchar(100) unique,
+original varchar(256) unique,
 thumb_small varchar(100) unique,
 thumb_large varchar(100) unique,
 createddate timestamp,
@@ -39,13 +39,14 @@ GRANT USAGE, SELECT ON SEQUENCE albums_id_seq TO album;
 GRANT USAGE, SELECT ON SEQUENCE media_id_seq TO album;
 
 select * from albums;
-select * from media;
+select * from media where original is null;
 
 select a.name, cast(min(createddate) as date), max(createddate) from 
 albums a join media b on a.id = b.album_id
 group by 1
 ;
 
+insert into media (album_id) values (4)
 
 commit
 
@@ -87,3 +88,7 @@ update media set isfront = false where id in
 (select album_id from media where id = 600) b on a.album_id = b.album_id);
 
 update media set isfront = true where id = 600;
+
+select id from albums where subdir = '/test speciale c''s';
+
+select '/test speciale c''s';

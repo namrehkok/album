@@ -122,6 +122,7 @@ def generate_thumb(original, target, size):
 
     image.thumbnail(size, Image.ANTIALIAS)
     image.save(target)
+    image.close()
 
     return target
 
