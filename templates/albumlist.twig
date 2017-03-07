@@ -6,9 +6,9 @@
           <div class="album-button">
             <p>
               <img src = '{{ thumbs }}{{ item.thumb_small }}'><br>
-              <h1><a href = '{{ url_album }}?album={{ item.slug }}&favorite=1'>{{ item.name }}</a></h1>
+              <h1><a href = '{{ url_album }}?album={{ item.slug }}&favorite=1&sorting=asc'>{{ item.name }}</a></h1>
               <h2>{{ item.startdate }} - {{ item.enddate }}</h2>
-              <a href = '{{ url_album }}?album={{ item.slug }}&favorite=0'>All</a>
+              <a href = '{{ url_album }}?album={{ item.slug }}&favorite=0&sorting=asc'>All</a>
             </p>
           </div>
         </div>

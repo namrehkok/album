@@ -11,14 +11,26 @@ $twig = new Twig_Environment($loader);
 $dbconn = pg_connect("host=localhost dbname=album user=album password=album")
     or die('Could not connect: ' . pg_last_error());
 
+// get the sorting order of the pictures
+switch ( $_GET['sorting'])
+{
+  case 'desc':
+    $sorting = 'desc';
+    break;
+  default:
+    $sorting = 'asc';
+    break;
+}
+
+
 // Only getting the favorite pictures in case the favorite=1 was set in URL
 switch ( $_GET['favorite'] )
   {
     case '1':
-      $query = "SELECT a.name, b.* FROM albums a join media b on a.id = b.album_id and b.favorite = True and a.slug = '" . $_GET['album'] ."' order by b.createddate asc;";
+      $query = "SELECT a.name, b.* FROM albums a join media b on a.id = b.album_id and b.favorite = True and a.slug = '" . $_GET['album'] ."' order by b.createddate " . $sorting . ";";
       break;
     default:
-      $query = "SELECT a.name, b.* FROM albums a join media b on a.id = b.album_id and a.slug = '" . $_GET['album'] ."' order by b.createddate asc;";
+      $query = "SELECT a.name, b.* FROM albums a join media b on a.id = b.album_id and a.slug = '" . $_GET['album'] ."' order by b.createddate " . $sorting . ";";
       break;
   }
 
@@ -32,7 +44,9 @@ echo $twig->render('album.twig', array('data' => $data, 'thumbs' => $thumbs,
         'originelen' => $originelen,
         'url_media' => $url_media,
         'url_toggle_favorite' => $url_toggle_favorite,
-        'url_toggle_front' => $url_toggle_front
+        'url_toggle_front' => $url_toggle_front,
+        'url_album' => $url_album,
+        'album' => $_GET['album']
       ));
 
 // Free resultset

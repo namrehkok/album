@@ -1,7 +1,10 @@
 <body>
+  <center>
+    Sorteer<br>
+    <a href = '{{ url_album }}?album={{ album }}&favorite=1&sorting=desc'>aflopend</a>
+    <a href = '{{ url_album }}?album={{ album }}&favorite=1&sorting=asc'>oplopend</a>
 <div class="container">
     <div class="row no-gutter">
-
       {% for item in data %}
       <div class="col-sm-3 no-padding">
         <div class="demo-content">
