@@ -1,0 +1,125 @@
+<script>
+	var winCached = $(window),
+  docCached = $(document)
+
+
+
+var currPage = 1;
+
+function addContent() {
+  dettachScrollEvent();
+  //alert(currPage);
+  setTimeout(function() {
+  $.ajax({
+    url: "/album/album_twig_add_ajax.php?offset=album=&favorite=" + currPage + "/",
+    success: function(data) {
+      //console.log(data);
+      //var html = jQuery( data )
+      //$grid.append(html).masonry ('prepended', html, true);
+      //$grid.masonry().append(html).masonry ('appended', html, true).masonry();
+      //$grid.prepend("<div class = 'grid-item'>foo</div>")
+      $grid.append(data).masonry( 'appended', data );
+      //$grid.masonry( 'reloadItems')
+      //$grid.masonry( 'layout' )
+    }
+
+  });
+  currPage = currPage+1;
+    attachScrollEvent();
+  }, 500)
+
+}
+
+function infiNLoader() {
+  var scrollHeight = docCached.height();
+	var scrollPosition = winCached.height() + winCached.scrollTop();
+  console.log ("Height: " + scrollHeight);
+  console.log ("Position: " + scrollPosition);
+  console.log (winCached.height())
+
+	//if ((scrollHeight - scrollPosition) / scrollHeight === 0)
+  if (scrollHeight - scrollPosition < winCached.height() * 1.5)
+  //if scrollHeight
+  {
+      //alert("near bottom! Adding more dummy content for infinite scrolling");
+      addContent();
+	}
+  //if (winCached.scrollTop() + winCached.height() > docCached.height()
+  //   && {{ test.page.paginator.num_pages }} >= currPage
+  // )
+  // {
+  //  addContent();
+    // alert("near bottom! Adding more dummy content for infinite scrolling");
+//  }
+}
+
+function attachScrollEvent() {
+
+  winCached.scroll(infiNLoader);
+}
+
+function dettachScrollEvent() {
+  winCached.unbind('scroll', infiNLoader);
+}
+for (var i = 1; i < 3; i++) {
+addContent();
+}
+</script>
+
+
+<body>
+  <center>
+    Sorteer<br>
+    <a href = '{{ url_album }}?album={{ album }}&favorite=1&sorting=desc'>aflopend</a>
+    <a href = '{{ url_album }}?album={{ album }}&favorite=1&sorting=asc'>oplopend</a>
+<div class="container">
+    <div class="row no-gutter">
+      {% for item in data %}
+      <div class="col-sm-3 no-padding">
+        <div class="demo-content">
+          {# adding the date #}
+          <div class="DatetimeTakenAlbum">
+            {{ item.createddate }}
+          </div>
+          {% if item.media == 'jpg' %}
+
+
+                <a href = '{{ url_media }}?mediaid={{item.id}}' class = 'image'>
+                  <img src = '{{ thumbs }}{{ item.thumb_small }}' class = 'media'>
+                </a>
+
+          {% elseif item.media == 'mp4' %}
+            <video width="100%" controls>
+              <source src="{{ originelen }}{{ item.original }}" type="video/mp4">
+            Your browser does not support the video tag.
+            </video>
+
+          {% elseif item.media == 'mov' %}
+            <video width="100%" controls>
+              <source src="{{ originelen }}{{ item.original }}" type="video/mov">
+            Your browser does not support the video tag.
+            </video>
+          {% else %}
+
+            {{ item.media }} is not supported
+          {% endif %}
+
+          {# Adding the hover buttons #}
+          <div class="hover-button">
+              <a href = '{{ url_toggle_favorite }}?mediaid={{ item.id }}' class = 'ToggleButton' class="linky">
+                {% if item.favorite == 't' %}
+                  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                {% else %}
+                  <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+                {% endif %}
+              </a>
+          </div>
+          <a href = '{{ url_toggle_front }}?mediaid={{ item.id }}' class = 'toggleFront'>frnt</a>
+        </div>
+
+      </div>
+      {% endfor %}
+
+    </div>
+<div id='modal'></div>
+</body>
