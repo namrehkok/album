@@ -239,15 +239,17 @@ conn.commit()
 
 # creating a front for albums not having a front
 sql = '''
-update media set isfront = true where id in 
-( select id from
+update media set isfront = true where id in
 (
-select b.id, row_number() over (partition by a.id order by 1) as rn from
-(select a.id from 
-albums a left join media b on a.id = b.album_id and b.isfront = true and media = 'jpg') a
-join media b on a.id = b.album_id
+select id from
+(
+select 
+t.*
+, max(cast (isfront as integer)) over (partition by album_id) has_front
+, row_number() over (partition by album_id order by 1) as rn
+from media t where media = 'jpg'
 ) t
-where rn = 1
+where rn=1 and has_front=0
 )
 ;
 '''
