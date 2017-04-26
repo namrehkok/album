@@ -1,24 +1,16 @@
 <?php
-if ($_GET['mediaid'])
+if ($_GET['mediaid'] and $_GET['album'])
 {
   // Connecting, selecting database
   $dbconn = pg_connect("host=localhost dbname=album user=album password=album")
       or die('Could not connect: ' . pg_last_error());
 
-  #First remove all the fronts from the album
-  $query = "
-  update media set isfront = false where id in
-  (select id from media a join
-  (select album_id from media where id = " . $_GET['mediaid'] .") b on a.album_id = b.album_id);
-  ";
-  $result = pg_query($query) or die('Query failed: ' . pg_last_error());
-
-  #Update the chosen
-  $query = "update media set isfront = true where id = " . $_GET['mediaid'] .";";
+  #Update the front of the album
+  $query = "update albums set front = " . $_GET['mediaid'] ." where slug = '" . $_GET['album'] ."';";
   $result = pg_query($query) or die('Query failed: ' . pg_last_error());
 
 
-  echo $_GET['mediaid'] . ' is updated';
+  echo $_GET['album'] .  ' is updated with ' . $_GET['mediaid'];
 
   // Free resultset
   pg_free_result($result);

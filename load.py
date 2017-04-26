@@ -19,7 +19,7 @@ except:
     print 'exit ', sys.argv[1:]
     print config
     sys.exit()
-    
+
 
 
 #Define our connection string
@@ -89,7 +89,7 @@ def created_date_video(filename):
         created_date = utc.astimezone(to_zone)
     except:
         try:
-            # return the creation date from the os            
+            # return the creation date from the os
             created_date = datetime.datetime.fromtimestamp(os.path.getmtime(filename))
             print 'Cannot extract datetime from video - returning the createdate from OS for %s' % filename
         except:
@@ -105,14 +105,14 @@ def created_date_video(filename):
 def generate_thumb(original, target, size):
     image=Image.open(original)
     if hasattr(image, '_getexif'): # only present in JPEGs
-        for orientation in ExifTags.TAGS.keys(): 
+        for orientation in ExifTags.TAGS.keys():
             if ExifTags.TAGS[orientation]=='Orientation':
-                break 
+                break
         e = image._getexif()       # returns None if no EXIF data
         if e is not None:
             exif=dict(e.items())
             try:
-                orientation = exif[orientation] 
+                orientation = exif[orientation]
                 if orientation == 3:   image = image.transpose(Image.ROTATE_180)
                 elif orientation == 6: image = image.transpose(Image.ROTATE_270)
                 elif orientation == 8: image = image.transpose(Image.ROTATE_90)
@@ -128,11 +128,11 @@ def generate_thumb(original, target, size):
 
 
 def get_date_created(media):
-    if media.lower().endswith('.jpg'):    
+    if media.lower().endswith('.jpg'):
         ## Reading EXIF data
         # Open image file for reading (binary mode)
         ff = open(media, 'rb')
-        
+
         # Return Exif tags
         tags = exifread.process_file(ff)
 
@@ -147,8 +147,8 @@ def get_date_created(media):
         ## Done reading EXIF
     else:
         date_created = ''
-        
-    if media.lower().endswith('.mp4'):    
+
+    if media.lower().endswith('.mp4'):
         date_created = created_date_video(media)
 
     return date_created
@@ -182,13 +182,13 @@ for subdir, dirs, files in os.walk(originals):
                 current_subdir_id = records[0][0]
 
             # Check if we need to add the media
-            f = os.path.join(subdir, file)                        
+            f = os.path.join(subdir, file)
             filename = f[len(originals):len(f)].replace("\\", "/").replace("'", "''")
             sql = "select * from media where original = '%s';" % (filename)
             cursor.execute(sql)
             records = cursor.fetchall()
 
-            
+
             if len(records) == 0:
                 # We need to add media
                 print 'Adding file %s' % file
@@ -218,39 +218,13 @@ for subdir, dirs, files in os.walk(originals):
                     sql = "update media set thumb_large = '%s_large.jpg' where id = %s" % (media_id, media_id)
                     cursor.execute(sql)
                     conn.commit()
-                
-                print 'Added %s with id %s. Took %s' % (filename, media_id, time.time() - start)
 
-# removing duplicate fronts (if any)
-sql = '''
-update media set isfront = false where id in
-(
-	select id from
-	(
-	select b.id, row_number() over (partition by a.id order by 1) rn from 
-	albums a left join media b on a.id = b.album_id and b.isfront = true and media = 'jpg'
-	) t
-	where rn > 1
-)
-;
-'''
-cursor.execute(sql)
-conn.commit()
+                print 'Added %s with id %s. Took %s' % (filename, media_id, time.time() - start)
 
 # creating a front for albums not having a front
 sql = '''
-update media set isfront = true where id in
-(
-select id from
-(
-select 
-t.*
-, max(cast (isfront as integer)) over (partition by album_id) has_front
-, row_number() over (partition by album_id order by 1) as rn
-from media t where media = 'jpg'
-) t
-where rn=1 and has_front=0
-)
+update albums set front = (select min(id) from media b where b.album_id = albums.id and media='jpg')
+where front is null
 ;
 '''
 cursor.execute(sql)
