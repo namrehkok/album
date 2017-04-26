@@ -30,6 +30,9 @@ isfront boolean default false
 );
 
 alter table albums add column front integer references media(id);
+alter table media drop constraint media_original_key;
+alter table media drop constraint media_thumb_small_key;
+alter table media drop constraint media_thumb_large_key;
 
 grant all on table albums to album;
 grant all on table media to album;
@@ -41,7 +44,7 @@ GRANT USAGE, SELECT ON SEQUENCE media_id_seq TO album;
 select * from albums;
 select * from media where original is null;
 
-select a.name, cast(min(createddate) as date), max(createddate) from 
+select a.name, cast(min(createddate) as date), max(createddate) from
 albums a join media b on a.id = b.album_id
 group by 1
 ;
@@ -60,18 +63,18 @@ update media set isfront = false where id in
 (
 	select id from
 	(
-	select b.id, row_number() over (partition by a.id order by 1) rn from 
+	select b.id, row_number() over (partition by a.id order by 1) rn from
 	albums a left join media b on a.id = b.album_id and b.isfront = true and media = 'jpg'
 	) t
 	where rn > 1
 )
 ;
 
-update media set isfront = true where id in 
+update media set isfront = true where id in
 ( select id from
 (
 select b.id, row_number() over (partition by a.id order by 1) as rn from
-(select a.id from 
+(select a.id from
 albums a left join media b on a.id = b.album_id and b.isfront = true and media = 'jpg') a
 join media b on a.id = b.album_id
 ) t
