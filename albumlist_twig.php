@@ -12,8 +12,8 @@ $dbconn = pg_connect("host=localhost dbname=album user=album password=album")
     or die('Could not connect: ' . pg_last_error());
 
 $query = "SELECT a.name, a.slug,  min(cast(b.createddate as date)) as startdate, max(cast(b.createddate as date)) as enddate,
-b.thumb_small as thumb_small
-FROM albums a left join media b on a.id = b.album_id and a.front = b.id group by 1 ,2, 5 order by coalesce(max(cast(b.createddate as date)), to_date('18000101', 'yyyymmdd')) desc";
+max(case when a.front = b.id then b.thumb_small end) as thumb_small
+FROM albums a left join media b on a.id = b.album_id group by 1 ,2 order by coalesce(max(cast(b.createddate as date)), to_date('18000101', 'yyyymmdd')) desc";
 
 $result = pg_query($query) or die('Query failed: ' . pg_last_error());
 
